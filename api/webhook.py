@@ -1,40 +1,62 @@
+from http.server import BaseHTTPRequestHandler
+import json
 import os
 import requests
 
+
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-def handler(request):
-    if request.method != "POST":
-        return {
-            "statusCode": 200,
-            "body": "TikTok Telegram Bot is running!"
-        }
 
-    data = request.get_json()
+class handler(BaseHTTPRequestHandler):
 
-    if not data or "message" not in data:
-        return {
-            "statusCode": 200,
-            "body": "OK"
-        }
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"TikTok Telegram Bot is running!")
 
-    message = data["message"]
-    chat_id = message["chat"]["id"]
-    text = message.get("text", "")
+    def do_POST(self):
+        content_length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(content_length)
 
-    if text == "/start":
-        reply = (
-            "🤖 TikTok Downloader Bot\n\n"
-            "Kirim link TikTok ke sini.\n"
-            "Contoh:\n"
-            "https://www.tiktok.com/..."
-        )
+        try:
+            data = json.loads(body)
 
-        requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": chat_id,
-                "text": reply
+            if "message" in data:
+                message = data["message"]
+                chat_id = message["chat"]["id"]
+                text = message.get("text", "")
+
+                if text == "/start":
+                    reply = (
+                        "🤖 TikTok Downloader Bot\n\n"
+                        "Kirim link TikTok ke sini."
+                    )
+
+                    requests.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={
+                            "chat_id": chat_id,
+                            "text": reply
+                        }
+                    )
+
+                elif "tiktok.com" in text:
+                    requests.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={
+                            "chat_id": chat_id,
+                            "text": "⏳ Link diterima."
+                        }
+                    )
+
+        except Exception:
+            pass
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"OK")                "text": reply
             }
         )
 
