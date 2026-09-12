@@ -3,7 +3,6 @@ import json
 import os
 import requests
 
-
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 
@@ -56,20 +55,4 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/plain")
         self.end_headers()
-        self.wfile.write(b"OK")                "text": reply
-            }
-        )
-
-    elif "tiktok.com" in text:
-        requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": chat_id,
-                "text": "⏳ Link diterima. Downloader sedang diproses..."
-            }
-        )
-
-    return {
-        "statusCode": 200,
-        "body": "OK"
-    }
+        self.wfile.write(b"OK")
